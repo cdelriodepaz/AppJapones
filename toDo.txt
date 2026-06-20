@@ -1,0 +1,15 @@
+- Todas las opciones de menú: buscar, modo examen, añadir palabra.
+- Opción salida
+-----
+- Búsqueda de palabra
+- Manejo de palabra no encontrada
+-----
+- Mecánicas de juego:
+    - Te muestran palabra y pones significado en castellano
+-----
+- Migración a JSON: Sustituir dataDict.py por un vocabulario.json.
+- Módulo de lectura/escritura: Hacer que el programa lea el JSON al arrancar.
+- Opción "Añadir Vocabulario": Crear una opción en el menú para que el usuario
+    pueda meter una palabra nueva por consola (con su kanji, hiragana, etc.) y
+    que el programa la guarde para siempre en el JSON, actualizando además la
+    fecha de modificación automáticamente.
