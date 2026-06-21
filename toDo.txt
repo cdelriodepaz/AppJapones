@@ -1,15 +1,20 @@
-- Todas las opciones de menú: buscar, modo examen, añadir palabra.
-- Opción salida
------
-- Búsqueda de palabra
-- Manejo de palabra no encontrada
------
-- Mecánicas de juego:
-    - Te muestran palabra y pones significado en castellano
------
-- Migración a JSON: Sustituir dataDict.py por un vocabulario.json.
-- Módulo de lectura/escritura: Hacer que el programa lea el JSON al arrancar.
-- Opción "Añadir Vocabulario": Crear una opción en el menú para que el usuario
-    pueda meter una palabra nueva por consola (con su kanji, hiragana, etc.) y
-    que el programa la guarde para siempre en el JSON, actualizando además la
-    fecha de modificación automáticamente.
+1 La Lógica del Quiz (appLogic.py)
+[ ] Crear getRandomWord(): Una función que elija una palabra al azar de tu dataDict.VOCAB_WORDS.
+Pista: Vas a necesitar importar la librería nativa random de Python y usar random.choice().
+[ ] Crear checkAnswer(): Una función que reciba la palabra elegida, la respuesta del usuario y el tipo de pregunta (si le preguntamos el romaji o el español) y devuelva True o False. Recuerda aplicarle el .lower().strip() que aprendimos ayer para que no falle por una mayúscula o un espacio despistado.
+
+2 La Interfaz del Quiz (interface.py)
+Vamos a darle vida en el menú para que el usuario pueda jugar.
+
+[ ] Añadir la opción "C) Ponerse a prueba (Quiz)" en tu función print_start().
+[ ] Ampliar los filtros: Añadir la "c" a tu lista de valid_opt.
+[ ] Desarrollar el bucle del juego: Crear el bloque if option.lower() == valid_opt[2]: donde:
+Se limpie la pantalla.
+Se lance una palabra aleatoria.
+Se le pida el input al usuario.
+Se compruebe el resultado y se le diga si ha acertado o ha fallado (¡y cuál era la respuesta correcta si falla!).
+Se llame a stop_backToMenu().
+
+3 El Toque Premium de Git (GitHub)
+[ ] Hacer Commit & Push del Quiz: Subir los cambios de hoy con un mensaje limpio (ej: feat: add quiz mode functionality).2 
+[ ] Redactar el README.md: Crear un archivo llamado README.md en la raíz del proyecto explicando de qué va este asistente de japonés y cómo luce su arquitectura separada. (Si quieres, luego te ayudo a redactarlo para que quede súper profesional).
