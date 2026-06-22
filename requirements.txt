@@ -1,0 +1,5 @@
+translate
+requests
+fugashi
+unidic-lite
+jaconv

@@ -11,7 +11,7 @@ def clean_screen():
 def print_start():
     print("====PROGRAMA DE ASISTENCIA AL APRENDIZAJE DE JAPONÉS====")
     print(
-        f"Elija una opción:\n\tA) Revisar lista de vocabulario.\n\tB) Buscar una palabra específica en el vocabulario.\n\tC) Modo examen\n\tX) Exit"
+        f"Elija una opción:\n\tA) Revisar lista de vocabulario.\n\tB) Buscar una palabra específica en el vocabulario.\n\tC) Modo examen\n\tD)Traducir frase\n\tX) Exit"
     )  ##TODO: añadir opciones
 
 
@@ -29,7 +29,7 @@ def start_app():
         print_start()
         option = input(">>>")
 
-        valid_opt = ["a", "b", "c", "x"]  ##opciones del menú
+        valid_opt = ["a", "b", "c", "d", "x"]  ##opciones del menú
         while option.lower() not in valid_opt:
             print("Por favor, escoja una opción válida")
             option = input(">>>")
@@ -123,7 +123,41 @@ def start_app():
                     appLogic.saveVocab(appLogic.currentVocab)
                 stop_backToMenu()
 
-        elif option.lower() == valid_opt[3]:  ##SALIR DEL PROGRAMA
+        elif option.lower() == valid_opt[3]:
+            clean_screen()
+            print("---Interfaz de traducción---")
+            spanishSentence = input("\tIntroduzca la frase a traducir:\n>>>")
+            allElements = appLogic.extractCandidates(spanishSentence)
+            if len(allElements) == 0:
+                print("> No se ha podido encontrar ningún elemento analizable.")
+                stop_backToMenu()
+            for element in allElements:
+                print(
+                    f"{element[1]}\n\tHiragana: {element[2]}\n\tRomaji: {element[0]}\n\tSignificado: {element[3]}"
+                )
+                saveChoice = input(
+                    "¿Deseas guardar esta palabra en el vocabulario?\n>>>(Y/N):"
+                )
+                while saveChoice not in ("Y", "N"):
+                    saveChoice = input(
+                        "> Por favor, introduzca una respuesta válida.\n¿Deseas guardar esta palabra en el vocabulario?\n>>>(Y/N):"
+                    )
+                if saveChoice == "Y":
+                    if element[0] in appLogic.currentVocab:
+                        print("> Esta palabra ya existe en el vocabulario!")
+                        stop_backToMenu()
+                        continue
+                    dictionaryEntry = {
+                        "kanji": element[1],
+                        "hiragana": element[2],
+                        "significado": element[3],
+                        "nivel": 0.50,
+                    }
+                    appLogic.currentVocab[element[0]] = dictionaryEntry
+            appLogic.saveVocab(appLogic.currentVocab)
+            stop_backToMenu()
+
+        elif option.lower() == valid_opt[4]:  ##SALIR DEL PROGRAMA
             clean_screen()
             print("Adiós! またね!")
             appLogic.saveVocab(appLogic.currentVocab)

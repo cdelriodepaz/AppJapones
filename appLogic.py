@@ -1,9 +1,24 @@
 import random
 import unicodedata
 import json
+from translate import Translator
+import requests
+import fugashi
+import jaconv
 
 currentVocab = {}
 vocabFileName = "vocabData.json"
+tagger = fugashi.Tagger()
+esLan = "es"
+jaLan = "ja"
+enLan = "en"
+provider = "mymemory"
+espToJpTranslator = Translator(provider=provider, from_lang=esLan, to_lang=jaLan)
+enToEspTranslator = Translator(provider=provider, from_lang=enLan, to_lang=esLan)
+url = "https://jisho.org/api/v1/search/words"
+
+##TÉRMINOS JAPONESES PARA FILTRADO
+allowedWordTypes = ["名詞", "動詞"]  ##[sustantivo, verbo]
 
 
 def eliminar_tildes(texto):
@@ -61,9 +76,7 @@ def updateLevel(theWord, booleanCorrect):
         return f"Fallo!\nNivel: {currentLevel} --> {newLevel}"
 
 
-## JSON
-
-
+## JSON y MANEJO DE VOCABULARIO
 def saveVocab(dictionary):
     with open(vocabFileName, "w") as writeFile:
         json.dump(dictionary, writeFile)
@@ -79,9 +92,52 @@ def loadVocab():
         return {}
 
 
-## VOCAB MANAGEMENT
-
-
 def initVocab():
     global currentVocab
     currentVocab = loadVocab()
+
+
+## TRADUCCIÓN
+def translateSentence(toTranslate, theTranslator):
+    translatedRes = theTranslator.translate(toTranslate.lower())
+    return translatedRes
+
+
+def getMeaning(theWord):
+    answer = requests.get(url, params={"keyword": theWord})
+    alldata = answer.json()["data"]
+    if len(alldata) == 0:
+        return -1
+
+    firstValidResult = alldata[0]
+    return firstValidResult["senses"][0].get("english_definitions")[0]
+
+
+def extractCandidates(spanishSentence):
+    retList = []
+    japaneseSentence = translateSentence(spanishSentence, espToJpTranslator)
+    print(f"DEBUG - frase traducida: {japaneseSentence}")
+    tokenList = tagger(japaneseSentence)
+    for token in tokenList:
+        print(
+            f"DEBUG - surface: {token.surface}, pos1: {token.feature.pos1}, lemma: {token.feature.lemma}"
+        )
+        wordType = token.feature.pos1
+        if wordType in allowedWordTypes:
+            wordMeaning = getMeaning(token.feature.lemma)
+            if wordMeaning == -1:
+                print(
+                    f"-- No se pudo encontrar un significado válido para {token.feature.lemma} -> Palabra omitida"
+                )
+                continue
+            else:
+                hiragana = jaconv.kata2hira(token.feature.kana)
+                retList.append(  ##[romaji, palabra inf, kana, significado]
+                    [
+                        jaconv.kana2alphabet(hiragana),
+                        token.feature.lemma,
+                        hiragana,
+                        translateSentence(wordMeaning, enToEspTranslator),
+                    ]
+                )
+    return retList
