@@ -17,8 +17,9 @@ espToJpTranslator = Translator(provider=provider, from_lang=esLan, to_lang=jaLan
 enToEspTranslator = Translator(provider=provider, from_lang=enLan, to_lang=esLan)
 url = "https://jisho.org/api/v1/search/words"
 
-##TÉRMINOS JAPONESES PARA FILTRADO
+## FILTRADO
 allowedWordTypes = ["名詞", "動詞"]  ##[sustantivo, verbo]
+allowedFieldModifications = ["kanji", "hiragana", "significado"]
 
 
 def eliminar_tildes(texto):
@@ -41,6 +42,27 @@ def searchWordSpanish(theWord):
         ):
             return sub_diccionario
     return -1
+
+
+def findKeyBySpanish(theWord):
+    for word in currentVocab:
+        sub_diccionario = currentVocab.get(word)
+        if (
+            sub_diccionario.get("significado")
+            and sub_diccionario.get("significado").lower() == theWord
+        ):
+            return word
+    return -1
+
+
+def findVocabKey(theWord):
+    retVal = findKeyBySpanish(theWord)
+    if retVal == -1:
+        retVal = searchWordRomaji(theWord)
+        if retVal == -1:
+            return retVal
+        return theWord
+    return retVal
 
 
 ## LÓGICA DEL QUIZ
@@ -92,6 +114,15 @@ def loadVocab():
         return {}
 
 
+def updateWordField(key, field, newValue):
+    if field not in allowedFieldModifications:
+        return -1
+    if key not in currentVocab:
+        return -1
+    currentVocab[key][field] = newValue
+    saveVocab(currentVocab)
+
+
 def initVocab():
     global currentVocab
     currentVocab = loadVocab()
@@ -116,12 +147,8 @@ def getMeaning(theWord):
 def extractCandidates(spanishSentence):
     retList = []
     japaneseSentence = translateSentence(spanishSentence, espToJpTranslator)
-    print(f"DEBUG - frase traducida: {japaneseSentence}")
     tokenList = tagger(japaneseSentence)
     for token in tokenList:
-        print(
-            f"DEBUG - surface: {token.surface}, pos1: {token.feature.pos1}, lemma: {token.feature.lemma}"
-        )
         wordType = token.feature.pos1
         if wordType in allowedWordTypes:
             wordMeaning = getMeaning(token.feature.lemma)

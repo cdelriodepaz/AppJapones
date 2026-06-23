@@ -11,7 +11,7 @@ def clean_screen():
 def print_start():
     print("====PROGRAMA DE ASISTENCIA AL APRENDIZAJE DE JAPONÉS====")
     print(
-        f"Elija una opción:\n\tA) Revisar lista de vocabulario.\n\tB) Buscar una palabra específica en el vocabulario.\n\tC) Modo examen\n\tD)Traducir frase\n\tX) Exit"
+        f"Elija una opción:\n\tA) Revisar lista de vocabulario.\n\tB) Buscar una palabra específica en el vocabulario.\n\tC) Modo examen\n\tD) Traducir frase\n\tE) Editar palabra del vocabulario\n\tX) Exit"
     )  ##TODO: añadir opciones
 
 
@@ -29,7 +29,7 @@ def start_app():
         print_start()
         option = input(">>>")
 
-        valid_opt = ["a", "b", "c", "d", "x"]  ##opciones del menú
+        valid_opt = ["a", "b", "c", "d", "e", "x"]  ##opciones del menú
         while option.lower() not in valid_opt:
             print("Por favor, escoja una opción válida")
             option = input(">>>")
@@ -157,7 +157,36 @@ def start_app():
             appLogic.saveVocab(appLogic.currentVocab)
             stop_backToMenu()
 
-        elif option.lower() == valid_opt[4]:  ##SALIR DEL PROGRAMA
+        elif option.lower() == valid_opt[4]:  ## EDITAR PALABRA
+            clean_screen()
+            print("---- Editar palabra ----")
+            word = input("> Introduzca la palabra a editar (romaji o castellano):\n>>>")
+            key = appLogic.findVocabKey(word.lower())
+            if key == -1:
+                print(f"ERROR: La palabra '{word}' no existe en el vocabulario")
+                stop_backToMenu()
+                continue
+            partValidOpt = ["a", "b", "c"]
+            partToEdit = input(
+                "------------\nA) Hiragana\nB) Kanji\nC) Significado\n>>>"
+            )
+            while partToEdit.lower() not in partValidOpt:
+                partToEdit = input(
+                    "Opción inválida, por favor introduzca una opción válida:\n>>>"
+                )
+            newValue = input("Por favor, introduzca el nuevo valor:\n>>>")
+            appLogic.updateWordField(
+                key,
+                appLogic.allowedFieldModifications[
+                    partValidOpt.index(partToEdit.lower())
+                ],
+                newValue,
+            )
+            stop_backToMenu()
+
+            # pedir la opción, pedir el nuevo valor, llamar a appLogic.updateWordField(key, campo, nuevoValor)
+
+        elif option.lower() == valid_opt[5]:  ##SALIR DEL PROGRAMA
             clean_screen()
             print("Adiós! またね!")
             appLogic.saveVocab(appLogic.currentVocab)
