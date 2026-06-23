@@ -1,6 +1,6 @@
 import os
+import sys
 import appLogic
-import unicodedata
 
 
 ## Funciones útiles
@@ -9,185 +9,254 @@ def clean_screen():
 
 
 def print_start():
-    print("====PROGRAMA DE ASISTENCIA AL APRENDIZAJE DE JAPONÉS====")
-    print(
-        f"Elija una opción:\n\tA) Revisar lista de vocabulario.\n\tB) Buscar una palabra específica en el vocabulario.\n\tC) Modo examen\n\tD) Traducir frase\n\tE) Editar palabra del vocabulario\n\tX) Exit"
-    )  ##TODO: añadir opciones
+    print("-" * 50)
+    print("\tASISTENTE DE APRENDIZAJE DE JAPONÉS")
+    print("-" * 50)
+    print("\tA) Manejar vocabulario")
+    print("\tB) Modo examen")
+    print("\tC) Traducir frase")
+    print("\tX) Salir")
 
 
 def stop_backToMenu():
-    print("~" * 10)
+    print("-" * 50)
     input("Presione ENTER para volver al menú...")
 
 
 clean_screen()
 
 
-def start_app():
+def mainMenu():
     while True:
         clean_screen()
         print_start()
-        option = input(">>>")
-
-        valid_opt = ["a", "b", "c", "d", "e", "x"]  ##opciones del menú
+        option = input(">> ")
+        valid_opt = ["a", "b", "c", "x"]  ##opciones del menú
         while option.lower() not in valid_opt:
-            print("Por favor, escoja una opción válida")
-            option = input(">>>")
-
-        if option.lower() == valid_opt[0]:  ## LISTA DE VOCABULARIO
-            clean_screen()
-            print(
-                "-- Lista de vocabulario --\nÚltima actualización: "
-            )  ## TODO: Añadir fecha
-            for word in appLogic.currentVocab:
-                print(word)
-                for element, value in appLogic.currentVocab.get(word).items():
-                    print(f"|-> {element}: {value}")
-            stop_backToMenu()
-
-        elif option.lower() == valid_opt[1]:  ## BUSCAR PALABRA
-            clean_screen()
-            print(
-                "---:-- Buscador de palabras --:---\nPor favor, escoja una opción:\n\tA) Buscar palabra en castellano\n\tB) Buscar palabra en su romanización"
-            )
-            option = input(">>>")
-
-            search_valid_opt = ["a", "b"]
-            while option.lower() not in search_valid_opt:
-                option = input("ERROR: Por favor, escoja una opción válida:\n>>>")
-
-            word = input("> Buscar la palabra ...\n>>>")
-
-            if option.lower() == search_valid_opt[0]:
-                data = appLogic.searchWordSpanish(word.lower())
-                if data == -1:
-                    print(f"ERROR: The word {word} isn't part of the vocabulary list")
-                else:
-                    for element, value in data.items():
-                        print(f"|-> {element}: {value}")
-            elif option.lower() == search_valid_opt[1]:
-                data = appLogic.searchWordRomaji(word.lower())
-                if data == -1:
-                    print(f"ERROR: The word {word} isn't part of the vocabulary list")
-                else:
-                    for element, value in data.items():
-                        print(f"|->{element}: {value}")
-            stop_backToMenu()
-
-        elif option.lower() == valid_opt[2]:  ##QUIZ
-            if len(appLogic.currentVocab) < 10:
-                print(
-                    "Lo sentimos, no puedes entrar al modo examen si tu lista de vocabulario es inferior a 10 palabras."
-                )
-                stop_backToMenu()
-                continue
-            clean_screen()
-            print("---- Modo examen ----")
-            print("\tA) Palabra individual\n\tB) Examen de diez palabras")
-
-            quiz_valid_opts = ["a", "b"]
-
-            option = input(">>>")
-
-            while option.lower() not in quiz_valid_opts:
-                print("Please, enter a valid option")
-                option = input(">>>")
-
-            if option.lower() == quiz_valid_opts[0]:
-                clean_screen()
-                wordChoice = appLogic.getRandomWord()
-                hiragana = appLogic.currentVocab.get(wordChoice).get("hiragana")
-                print(f"->WORD: {hiragana} ({wordChoice})")
-
-                answer = input("Introduzca el signficiado en castellano:\n>>>")
-                printText = appLogic.checkAnswer(answer, wordChoice)
-
-                print("-" * 10)
-                print(printText)
-                appLogic.saveVocab(appLogic.currentVocab)
-
-                stop_backToMenu()
-
-            elif option.lower() == quiz_valid_opts[1]:
-                clean_screen()
-                wordList = appLogic.getTenRandomWords()
-                for word in wordList:
-                    hiragana = appLogic.currentVocab.get(word).get("hiragana")
-                    print(f"->WORD: {hiragana} ({word})")
-
-                    answer = input("Introduzca el signficiado en castellano:\n>>>")
-                    printText = appLogic.checkAnswer(answer, word)
-
-                    print("-" * 10)
-                    print(printText)
-                    appLogic.saveVocab(appLogic.currentVocab)
-                stop_backToMenu()
-
+            print("ERROR: Por favor, escoja una opción válida")
+            option = input(">> ")
+        if option.lower() == valid_opt[0]:
+            manageVocabMenu()
+        elif option.lower() == valid_opt[1]:
+            quizMenu()
+        elif option.lower() == valid_opt[2]:
+            translateMenu()
         elif option.lower() == valid_opt[3]:
-            clean_screen()
-            print("---Interfaz de traducción---")
-            spanishSentence = input("\tIntroduzca la frase a traducir:\n>>>")
-            allElements = appLogic.extractCandidates(spanishSentence)
-            if len(allElements) == 0:
-                print("> No se ha podido encontrar ningún elemento analizable.")
-                stop_backToMenu()
-            for element in allElements:
-                print(
-                    f"{element[1]}\n\tHiragana: {element[2]}\n\tRomaji: {element[0]}\n\tSignificado: {element[3]}"
-                )
-                saveChoice = input(
-                    "¿Deseas guardar esta palabra en el vocabulario?\n>>>(Y/N):"
-                )
-                while saveChoice not in ("Y", "N"):
-                    saveChoice = input(
-                        "> Por favor, introduzca una respuesta válida.\n¿Deseas guardar esta palabra en el vocabulario?\n>>>(Y/N):"
-                    )
-                if saveChoice == "Y":
-                    if element[0] in appLogic.currentVocab:
-                        print("> Esta palabra ya existe en el vocabulario!")
-                        stop_backToMenu()
-                        continue
-                    dictionaryEntry = {
-                        "kanji": element[1],
-                        "hiragana": element[2],
-                        "significado": element[3],
-                        "nivel": 0.50,
-                    }
-                    appLogic.currentVocab[element[0]] = dictionaryEntry
-            appLogic.saveVocab(appLogic.currentVocab)
-            stop_backToMenu()
+            exitApp()
 
-        elif option.lower() == valid_opt[4]:  ## EDITAR PALABRA
-            clean_screen()
-            print("---- Editar palabra ----")
-            word = input("> Introduzca la palabra a editar (romaji o castellano):\n>>>")
-            key = appLogic.findVocabKey(word.lower())
-            if key == -1:
-                print(f"ERROR: La palabra '{word}' no existe en el vocabulario")
+
+def vocabListMenu():
+    clean_screen()
+    print("-" * 50)
+    print("\tLISTA DE VOCABULARIO")
+    print("-" * 50)
+    print("\tÚltima actualización: ")  ## TODO: Añadir fecha
+    print("-" * 50)
+    for word in appLogic.currentVocab:
+        print(f"\t{word}")
+        for element, value in appLogic.currentVocab.get(word).items():
+            print(f"\t\t{element}: {value}")
+    stop_backToMenu()
+    return
+
+
+def searchWordMenu():
+    clean_screen()
+    print("-" * 50)
+    print("\tBUSCADOR DE PALABRAS")
+    print("-" * 50)
+    print("\tA) Buscar palabra en castellano")
+    print("\tB) Buscar palabra en su romanización")
+    print("\tX) Volver")
+    option = input(">> ")
+
+    search_valid_opt = ["a", "b", "x"]
+    while option.lower() not in search_valid_opt:
+        print("ERROR: Por favor, escoja una opción válida")
+        option = input(">> ")
+
+    if option.lower() == search_valid_opt[2]:
+        return
+
+    word = input("\tBuscar la palabra...\n>> ")
+
+    if option.lower() == search_valid_opt[0]:
+        data = appLogic.searchWordSpanish(word.lower())
+        if data == -1:
+            print(f"ERROR: La palabra '{word}' no existe en el vocabulario")
+        else:
+            for element, value in data.items():
+                print(f"\t\t{element}: {value}")
+    elif option.lower() == search_valid_opt[1]:
+        data = appLogic.searchWordRomaji(word.lower())
+        if data == -1:
+            print(f"ERROR: La palabra '{word}' no existe en el vocabulario")
+        else:
+            for element, value in data.items():
+                print(f"\t\t{element}: {value}")
+
+    stop_backToMenu()
+    return
+
+
+def quizMenu():
+    if len(appLogic.currentVocab) < 10:
+        print(
+            "ERROR: No puedes entrar al modo examen si tu vocabulario tiene menos de 10 palabras."
+        )
+        stop_backToMenu()
+        return
+
+    print("-" * 50)
+    print("\tMODO EXAMEN")
+    print("-" * 50)
+    print("\tA) Palabra individual")
+    print("\tB) Examen de diez palabras")
+
+    quiz_valid_opts = ["a", "b"]
+    option = input(">> ")
+
+    while option.lower() not in quiz_valid_opts:
+        print("ERROR: Por favor, escoja una opción válida")
+        option = input(">> ")
+
+    if option.lower() == quiz_valid_opts[0]:
+        clean_screen()
+        wordChoice = appLogic.getRandomWord()
+        hiragana = appLogic.currentVocab.get(wordChoice).get("hiragana")
+        print("-" * 50)
+        print(f"\t{hiragana} ({wordChoice})")
+        print("-" * 50)
+        answer = input("\tIntroduzca el significado en castellano:\n>> ")
+        printText = appLogic.checkAnswer(answer, wordChoice)
+        print("-" * 50)
+        print(printText)
+        appLogic.saveVocab(appLogic.currentVocab)
+        stop_backToMenu()
+        return
+
+    elif option.lower() == quiz_valid_opts[1]:
+        clean_screen()
+        wordList = appLogic.getTenRandomWords()
+        for word in wordList:
+            hiragana = appLogic.currentVocab.get(word).get("hiragana")
+            print("-" * 50)
+            print(f"\t{hiragana} ({word})")
+            print("-" * 50)
+            answer = input("\tIntroduzca el significado en castellano:\n>> ")
+            printText = appLogic.checkAnswer(answer, word)
+            print("-" * 50)
+            print(printText)
+            appLogic.saveVocab(appLogic.currentVocab)
+        stop_backToMenu()
+        return
+
+
+def translateMenu():
+    clean_screen()
+    print("-" * 50)
+    print("\tTRADUCIR FRASE")
+    print("-" * 50)
+    spanishSentence = input("\tIntroduzca la frase a traducir:\n>> ")
+    allElements = appLogic.extractCandidates(spanishSentence)
+    if len(allElements) == 0:
+        print("ERROR: No se ha podido encontrar ningún elemento analizable.")
+        stop_backToMenu()
+        return
+
+    for element in allElements:
+        print("-" * 50)
+        print(f"\t{element[1]}")
+        print(f"\t\tHiragana: {element[2]}")
+        print(f"\t\tRomaji: {element[0]}")
+        print(f"\t\tSignificado: {element[3]}")
+        saveChoice = input(
+            "\t¿Deseas guardar esta palabra en el vocabulario? (Y/N):\n>> "
+        )
+        while saveChoice not in ("Y", "N"):
+            saveChoice = input(
+                "ERROR: Por favor, introduzca una respuesta válida (Y/N):\n>> "
+            )
+        if saveChoice == "Y":
+            if element[0] in appLogic.currentVocab:
+                print("ERROR: Esta palabra ya existe en el vocabulario.")
                 stop_backToMenu()
                 continue
-            partValidOpt = ["a", "b", "c"]
-            partToEdit = input(
-                "------------\nA) Hiragana\nB) Kanji\nC) Significado\n>>>"
-            )
-            while partToEdit.lower() not in partValidOpt:
-                partToEdit = input(
-                    "Opción inválida, por favor introduzca una opción válida:\n>>>"
-                )
-            newValue = input("Por favor, introduzca el nuevo valor:\n>>>")
-            appLogic.updateWordField(
-                key,
-                appLogic.allowedFieldModifications[
-                    partValidOpt.index(partToEdit.lower())
-                ],
-                newValue,
-            )
-            stop_backToMenu()
+            dictionaryEntry = {
+                "kanji": element[1],
+                "hiragana": element[2],
+                "significado": element[3],
+                "nivel": 0.50,
+            }
+            appLogic.currentVocab[element[0]] = dictionaryEntry
+    appLogic.saveVocab(appLogic.currentVocab)
+    stop_backToMenu()
+    return
 
-            # pedir la opción, pedir el nuevo valor, llamar a appLogic.updateWordField(key, campo, nuevoValor)
 
-        elif option.lower() == valid_opt[5]:  ##SALIR DEL PROGRAMA
-            clean_screen()
-            print("Adiós! またね!")
-            appLogic.saveVocab(appLogic.currentVocab)
-            break
+def editWordMenu():
+    clean_screen()
+    print("-" * 50)
+    print("\tEDITAR PALABRA")
+    print("-" * 50)
+    word = input("\tIntroduzca la palabra a editar (romaji o castellano):\n>> ")
+    key = appLogic.findVocabKey(word.lower())
+    if key == -1:
+        print(f"ERROR: La palabra '{word}' no existe en el vocabulario")
+        stop_backToMenu()
+        return
+
+    print("\tA) Hiragana")
+    print("\tB) Kanji")
+    print("\tC) Significado")
+    partToEdit = input(">> ")
+
+    partValidOpt = ["a", "b", "c"]
+    while partToEdit.lower() not in partValidOpt:
+        print("ERROR: Opción inválida")
+        partToEdit = input(">> ")
+
+    newValue = input("\tPor favor, introduzca el nuevo valor:\n>> ")
+    appLogic.updateWordField(
+        key,
+        appLogic.allowedFieldModifications[partValidOpt.index(partToEdit.lower())],
+        newValue,
+    )
+    stop_backToMenu()
+    return
+
+
+def manageVocabMenu():
+    while True:
+        clean_screen()
+        print("-" * 50)
+        print("\tMANEJAR VOCABULARIO")
+        print("-" * 50)
+        print("\tA) Listar vocabulario")
+        print("\tB) Buscar palabra")
+        print("\tC) Editar palabra")
+        print("\tX) Volver")
+        option = input(">> ")
+
+        valid_options = ["a", "b", "c", "x"]
+        while option.lower() not in valid_options:
+            print("ERROR: Por favor, introduzca una opción válida")
+            option = input(">> ")
+
+        if option.lower() == valid_options[0]:
+            vocabListMenu()
+        elif option.lower() == valid_options[1]:
+            searchWordMenu()
+        elif option.lower() == valid_options[2]:
+            editWordMenu()
+        elif option.lower() == valid_options[3]:
+            return
+
+
+def exitApp():
+    clean_screen()
+    print("-" * 50)
+    print("\tAdiós! またね!")
+    print("-" * 50)
+    appLogic.saveVocab(appLogic.currentVocab)
+    sys.exit()

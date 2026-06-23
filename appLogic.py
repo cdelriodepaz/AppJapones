@@ -18,7 +18,7 @@ enToEspTranslator = Translator(provider=provider, from_lang=enLan, to_lang=esLan
 url = "https://jisho.org/api/v1/search/words"
 
 ## FILTRADO
-allowedWordTypes = ["名詞", "動詞"]  ##[sustantivo, verbo]
+allowedWordTypes = ["名詞", "動詞", "形容詞"]  ##[sustantivo, verbo, adjetivo]
 allowedFieldModifications = ["kanji", "hiragana", "significado"]
 
 
