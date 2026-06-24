@@ -5,8 +5,10 @@ from translate import Translator
 import requests
 import fugashi
 import jaconv
+from datetime import datetime
 
 currentVocab = {}
+lastEdit = ""
 vocabFileName = "vocabData.json"
 tagger = fugashi.Tagger()
 esLan = "es"
@@ -100,16 +102,26 @@ def updateLevel(theWord, booleanCorrect):
 
 ## JSON y MANEJO DE VOCABULARIO
 def saveVocab(dictionary):
+    global lastEdit
+    lastEdit = datetime.now().strftime("%d/%m/%Y %H:%M")
     with open(vocabFileName, "w") as writeFile:
-        json.dump(dictionary, writeFile)
+        retDict = {}
+        retDict["lastEdit"] = lastEdit
+        retDict["words"] = dictionary
+
+        json.dump(retDict, writeFile)
 
 
 def loadVocab():
     try:
         with open(vocabFileName, "r") as loadFile:
             retValue = json.load(loadFile)
-        return retValue
-    except FileNotFoundError as e:
+        vocab = retValue["words"]
+
+        global lastEdit
+        lastEdit = retValue["lastEdit"]
+        return vocab
+    except (FileNotFoundError, json.JSONDecodeError) as e:
         saveVocab({})
         return {}
 

@@ -50,7 +50,7 @@ def vocabListMenu():
     print("-" * 50)
     print("\tLISTA DE VOCABULARIO")
     print("-" * 50)
-    print("\tÚltima actualización: ")  ## TODO: Añadir fecha
+    print(f"\tÚltima actualización: {appLogic.lastEdit}")  ## TODO: Añadir fecha
     print("-" * 50)
     for word in appLogic.currentVocab:
         print(f"\t{word}")
@@ -173,11 +173,13 @@ def translateMenu():
         saveChoice = input(
             "\t¿Deseas guardar esta palabra en el vocabulario? (Y/N):\n>> "
         )
-        while saveChoice not in ("Y", "N"):
+
+        saveChoiceOptions = ["y", "n"]
+        while saveChoice.lower() not in saveChoiceOptions:
             saveChoice = input(
                 "ERROR: Por favor, introduzca una respuesta válida (Y/N):\n>> "
             )
-        if saveChoice == "Y":
+        if saveChoice.lower() == saveChoiceOptions[0]:
             if element[0] in appLogic.currentVocab:
                 print("ERROR: Esta palabra ya existe en el vocabulario.")
                 stop_backToMenu()
