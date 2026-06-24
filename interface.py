@@ -226,6 +226,43 @@ def editWordMenu():
     return
 
 
+def deleteWordMenu():
+    clean_screen()
+    print("-" * 50)
+    print("\tELIMINAR PALABRA")
+    print("-" * 50)
+    wordToDelete = input("\tIntroduzca la palabra a eliminar\n>>")
+
+    key = appLogic.findVocabKey(wordToDelete.lower())
+
+    if key == -1:
+        print("\tERROR: No se pudo encontrar la palabra buscada")
+        stop_backToMenu()
+        return
+
+    data = appLogic.currentVocab[key]
+
+    for element, value in data.items():
+        print(f"\t\t{element}: {value}")
+    deleteConfir = input(
+        "\t¿Está seguro de eliminar esta entrada en el vocabulario?\n>>(Y/N)"
+    )
+
+    validDeleteConfir = ["y", "n"]
+
+    while deleteConfir not in validDeleteConfir:
+        deleteConfir = input("\tPor favor, escoja una opción válida.\n>>(Y/N)")
+
+    if deleteConfir.lower() == validDeleteConfir[0]:
+        appLogic.deleteWord(key)
+        print("\tPalabra eliminada satisfactoriamente")
+        stop_backToMenu()
+        return
+
+    stop_backToMenu()
+    return
+
+
 def manageVocabMenu():
     while True:
         clean_screen()
@@ -235,10 +272,11 @@ def manageVocabMenu():
         print("\tA) Listar vocabulario")
         print("\tB) Buscar palabra")
         print("\tC) Editar palabra")
+        print("\tD) Eliminar palabra")
         print("\tX) Volver")
         option = input(">> ")
 
-        valid_options = ["a", "b", "c", "x"]
+        valid_options = ["a", "b", "c", "d", "x"]
         while option.lower() not in valid_options:
             print("ERROR: Por favor, introduzca una opción válida")
             option = input(">> ")
@@ -250,6 +288,8 @@ def manageVocabMenu():
         elif option.lower() == valid_options[2]:
             editWordMenu()
         elif option.lower() == valid_options[3]:
+            deleteWordMenu()
+        elif option.lower() == valid_options[4]:
             return
 
 

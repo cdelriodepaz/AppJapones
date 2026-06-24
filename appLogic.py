@@ -114,6 +114,11 @@ def loadVocab():
         return {}
 
 
+def initVocab():
+    global currentVocab
+    currentVocab = loadVocab()
+
+
 def updateWordField(key, field, newValue):
     if field not in allowedFieldModifications:
         return -1
@@ -123,9 +128,11 @@ def updateWordField(key, field, newValue):
     saveVocab(currentVocab)
 
 
-def initVocab():
-    global currentVocab
-    currentVocab = loadVocab()
+def deleteWord(theKey):
+    if theKey not in currentVocab:
+        return -1
+    del currentVocab[theKey]
+    saveVocab(currentVocab)
 
 
 ## TRADUCCIÓN
