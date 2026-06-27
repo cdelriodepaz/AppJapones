@@ -69,18 +69,38 @@ def findVocabKey(theWord):
 
 ## LÓGICA DEL QUIZ
 def getRandomWord():
-    wordList = list(currentVocab.keys())
-    choice = random.randint(0, len(wordList) - 1)
-    return wordList[choice]
+    wordList = []
+    levelList = []
+    for word in currentVocab:
+        wordList.append(word)
+        levelList.append(1 - currentVocab.get(word)["nivel"])
+
+    selection = random.choices(wordList, weights=levelList, k=1)
+
+    return selection[0]
 
 
 def getTenRandomWords():
-    return random.sample(list(currentVocab.keys()), 10)
+    wordList = []
+    levelList = []
+    for word in currentVocab:
+        wordList.append(word)
+        levelList.append(1 - currentVocab.get(word)["nivel"])
+
+    counter = 0
+    retList = []
+    while counter != 10:
+        selection = random.choices(wordList, weights=levelList, k=1)
+        retList.append(selection[0])
+        counter += 1
+        wordList.remove(selection[0])
+        levelList.remove(1 - currentVocab.get(selection[0])["nivel"])
+    return retList
 
 
 def checkAnswer(theAnswer, theWord):
     correctAnswer = currentVocab.get(theWord).get("significado")
-    if eliminar_tildes(theAnswer).lower() == eliminar_tildes(correctAnswer):
+    if eliminar_tildes(theAnswer).lower() == eliminar_tildes(correctAnswer).lower():
         return updateLevel(theWord, True)
     else:
         return updateLevel(theWord, False)

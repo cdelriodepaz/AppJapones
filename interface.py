@@ -2,6 +2,8 @@ import os
 import sys
 import appLogic
 
+textLongLine = "-" * 50
+
 
 ## Funciones útiles
 def clean_screen():
@@ -9,9 +11,9 @@ def clean_screen():
 
 
 def print_start():
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tASISTENTE DE APRENDIZAJE DE JAPONÉS")
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tA) Manejar vocabulario")
     print("\tB) Modo examen")
     print("\tC) Traducir frase")
@@ -19,11 +21,8 @@ def print_start():
 
 
 def stop_backToMenu():
-    print("-" * 50)
+    print(f"{textLongLine}")
     input("Presione ENTER para volver al menú...")
-
-
-clean_screen()
 
 
 def mainMenu():
@@ -47,11 +46,11 @@ def mainMenu():
 
 def vocabListMenu():
     clean_screen()
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tLISTA DE VOCABULARIO")
-    print("-" * 50)
+    print(f"{textLongLine}")
     print(f"\tÚltima actualización: {appLogic.lastEdit}")  ## TODO: Añadir fecha
-    print("-" * 50)
+    print(f"{textLongLine}")
     for word in appLogic.currentVocab:
         print(f"\t{word}")
         for element, value in appLogic.currentVocab.get(word).items():
@@ -62,9 +61,9 @@ def vocabListMenu():
 
 def searchWordMenu():
     clean_screen()
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tBUSCADOR DE PALABRAS")
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tA) Buscar palabra en castellano")
     print("\tB) Buscar palabra en su romanización")
     print("\tX) Volver")
@@ -107,29 +106,34 @@ def quizMenu():
         stop_backToMenu()
         return
 
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tMODO EXAMEN")
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tA) Palabra individual")
     print("\tB) Examen de diez palabras")
+    print("\tX) Volver")
 
-    quiz_valid_opts = ["a", "b"]
+    quiz_valid_opts = ["a", "b", "x"]
     option = input(">> ")
 
     while option.lower() not in quiz_valid_opts:
         print("ERROR: Por favor, escoja una opción válida")
         option = input(">> ")
 
-    if option.lower() == quiz_valid_opts[0]:
+    if option.lower() == quiz_valid_opts[2]:
+        stop_backToMenu()
+        return
+
+    elif option.lower() == quiz_valid_opts[0]:
         clean_screen()
         wordChoice = appLogic.getRandomWord()
         hiragana = appLogic.currentVocab.get(wordChoice).get("hiragana")
-        print("-" * 50)
+        print(f"{textLongLine}")
         print(f"\t{hiragana} ({wordChoice})")
-        print("-" * 50)
+        print(f"{textLongLine}")
         answer = input("\tIntroduzca el significado en castellano:\n>> ")
         printText = appLogic.checkAnswer(answer, wordChoice)
-        print("-" * 50)
+        print(f"{textLongLine}")
         print(printText)
         appLogic.saveVocab(appLogic.currentVocab)
         stop_backToMenu()
@@ -140,12 +144,12 @@ def quizMenu():
         wordList = appLogic.getTenRandomWords()
         for word in wordList:
             hiragana = appLogic.currentVocab.get(word).get("hiragana")
-            print("-" * 50)
+            print(f"{textLongLine}")
             print(f"\t{hiragana} ({word})")
-            print("-" * 50)
+            print(f"{textLongLine}")
             answer = input("\tIntroduzca el significado en castellano:\n>> ")
             printText = appLogic.checkAnswer(answer, word)
-            print("-" * 50)
+            print(f"{textLongLine}")
             print(printText)
             appLogic.saveVocab(appLogic.currentVocab)
         stop_backToMenu()
@@ -154,9 +158,9 @@ def quizMenu():
 
 def translateMenu():
     clean_screen()
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tTRADUCIR FRASE")
-    print("-" * 50)
+    print(f"{textLongLine}")
     spanishSentence = input("\tIntroduzca la frase a traducir:\n>> ")
     allElements = appLogic.extractCandidates(spanishSentence)
     if len(allElements) == 0:
@@ -165,7 +169,7 @@ def translateMenu():
         return
 
     for element in allElements:
-        print("-" * 50)
+        print(f"{textLongLine}")
         print(f"\t{element[1]}")
         print(f"\t\tHiragana: {element[2]}")
         print(f"\t\tRomaji: {element[0]}")
@@ -198,9 +202,9 @@ def translateMenu():
 
 def editWordMenu():
     clean_screen()
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tEDITAR PALABRA")
-    print("-" * 50)
+    print(f"{textLongLine}")
     word = input("\tIntroduzca la palabra a editar (romaji o castellano):\n>> ")
     key = appLogic.findVocabKey(word.lower())
     if key == -1:
@@ -230,9 +234,9 @@ def editWordMenu():
 
 def deleteWordMenu():
     clean_screen()
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tELIMINAR PALABRA")
-    print("-" * 50)
+    print(f"{textLongLine}")
     wordToDelete = input("\tIntroduzca la palabra a eliminar\n>>")
 
     key = appLogic.findVocabKey(wordToDelete.lower())
@@ -252,7 +256,7 @@ def deleteWordMenu():
 
     validDeleteConfir = ["y", "n"]
 
-    while deleteConfir not in validDeleteConfir:
+    while deleteConfir.lower() not in validDeleteConfir:
         deleteConfir = input("\tPor favor, escoja una opción válida.\n>>(Y/N)")
 
     if deleteConfir.lower() == validDeleteConfir[0]:
@@ -268,9 +272,9 @@ def deleteWordMenu():
 def manageVocabMenu():
     while True:
         clean_screen()
-        print("-" * 50)
+        print(f"{textLongLine}")
         print("\tMANEJAR VOCABULARIO")
-        print("-" * 50)
+        print(f"{textLongLine}")
         print("\tA) Listar vocabulario")
         print("\tB) Buscar palabra")
         print("\tC) Editar palabra")
@@ -297,8 +301,8 @@ def manageVocabMenu():
 
 def exitApp():
     clean_screen()
-    print("-" * 50)
+    print(f"{textLongLine}")
     print("\tAdiós! またね!")
-    print("-" * 50)
+    print(f"{textLongLine}")
     appLogic.saveVocab(appLogic.currentVocab)
     sys.exit()
